@@ -51,10 +51,18 @@ var GalilPortal = (function () {
   /* ---------- people and access ---------- */
   /* WorkDesk's data as this browser last saw it (the portal keeps it up to date) */
   function workdesk() { var o = json(WD_KEY); return o && o.data && Array.isArray(o.data.users) ? o.data : null; }
+  /* config.js → PORTAL_CONFIG.pilot: when it lists emails, only those people get in */
+  function inPilot(u) {
+    var list = (typeof PORTAL_CONFIG !== "undefined" && PORTAL_CONFIG.pilot) || [];
+    if (!list.length) return true;
+    var e = String((u && u.email) || "").trim().toLowerCase();
+    for (var i = 0; i < list.length; i++) if (String(list[i]).trim().toLowerCase() === e) return true;
+    return false;
+  }
   function sessionUser() {
     var id = get(SESSION_KEY), d = workdesk();
     if (!id || !d) return null;
-    for (var i = 0; i < d.users.length; i++) if (d.users[i].id === id) return d.users[i];
+    for (var i = 0; i < d.users.length; i++) if (d.users[i].id === id) return inPilot(d.users[i]) ? d.users[i] : null;
     return null;
   }
   var TASKANA_ROLES = ["Admin", "Manager", "Member", "External", "Viewer"];
@@ -153,7 +161,7 @@ var GalilPortal = (function () {
     TASKANA_ROLES: TASKANA_ROLES, HR_ROLES: HR_ROLES,
     lang: lang, setLang: setLang, applyLang: applyLang, t: t,
     theme: theme, setTheme: setTheme,
-    workdesk: workdesk, sessionUser: sessionUser, access: access, defaultAccess: defaultAccess, taskana: taskana,
+    workdesk: workdesk, sessionUser: sessionUser, inPilot: inPilot, access: access, defaultAccess: defaultAccess, taskana: taskana,
     isMobileDevice: isMobileDevice,
     hubUrl: hubUrl, signOut: signOut, gate: gate
   };

@@ -1,6 +1,15 @@
 // The Employee Portal and WorkDesk: the GALIL team, demo data, the portal home page and
 // per-person access, Hebrew, and the GitHub / Microsoft 365 data files (APIs mocked).
 const { test, expect } = require("@playwright/test");
+
+/* The suites sign in as the whole demo team; config.js's pilot list is
+   tested on its own in tests/workdesk/pilot.spec.js. */
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    let pc;
+    Object.defineProperty(window, "PORTAL_CONFIG", { configurable: true, get: () => pc, set: v => { if (v) v.pilot = []; pc = v; } });
+  });
+});
 const fs = require("fs"), path = require("path");
 const s2dDay = ds => new Date(ds + "T00:00:00").getDay();
 

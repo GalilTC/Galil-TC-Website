@@ -1,6 +1,15 @@
 // Model Studio: opening models, the parts tree and list, visibility, saved views and images.
 const { test, expect } = require("@playwright/test");
 
+/* The suites sign in as the whole demo team; config.js's pilot list is
+   tested on its own in tests/workdesk/pilot.spec.js. */
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    let pc;
+    Object.defineProperty(window, "PORTAL_CONFIG", { configurable: true, get: () => pc, set: v => { if (v) v.pilot = []; pc = v; } });
+  });
+});
+
 const OBJ = [
   "o Bracket",
   "v 0 0 0", "v 10 0 0", "v 10 10 0", "v 0 10 0", "v 0 0 10", "v 10 0 10", "v 10 10 10", "v 0 10 10",

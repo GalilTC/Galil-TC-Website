@@ -19946,6 +19946,18 @@ function SignUp(p) {
 }
 
 /* ---------------- §6.3 holding screen ---------------- */
+/* config.js → pilot: people outside the pilot list see this instead of the portal */
+function PilotClosed(p) {
+  var he = WDI18N.he;
+  return h("div", { className: "auth" },
+    h("div", { className: "authcard" },
+      h(AuthLogo, { sub: he ? "פיילוט סגור" : "Closed pilot" }),
+      h("div", { className: "banner amber", style: { marginBottom: 12 } }, h(Icon, { n: "pending", size: 15 }), he ? "הפורטל בפיילוט סגור." : "The portal is in a closed pilot."),
+      h("p", { style: { fontSize: 13.5, color: C.muted, marginTop: 0 } },
+        he ? "כרגע הפורטל פתוח רק לצוות חטיבת הביטחון שמשתתף בפיילוט. " + p.user.email + " אינו ברשימה."
+           : "Right now the portal is open only to the Defense Division pilot team. " + p.user.email + " is not on the list."),
+      h(Btn, { style: { width: "100%" }, onClick: p.onSignOut }, he ? "יציאה" : "Sign out")));
+}
 function PendingActivation(p) {
   return h("div", { className: "auth" },
     h("div", { className: "authcard" },
@@ -25497,6 +25509,7 @@ function App() {
   /* Taskana, the Handbook and the Knowledge Base sign out by coming here with #signout */
   useEffect(function () { if (location.hash === "#signout") { if (user) signOut(); else writeRoute("home"); } }, []);
   function register(payload) {
+    if (!GalilPortal.inPilot(payload)) { toast(WDI18N.he ? "הפורטל בפיילוט סגור. רק משתתפי הפיילוט יכולים להירשם." : "The portal is in a closed pilot. Only pilot members can sign up.", "error"); return; }
     var id = uid("u");
     mutate(function (d) {
       var u = Object.assign(mkUser(id, payload.fullName, payload.fullNameHe, "EMP", payload.jobTitle, payload.department, payload.teamId, payload.managerId, false), payload, { id: id });
@@ -25523,6 +25536,11 @@ function App() {
       authMode === "signup"
         ? h(SignUp, { db: db, onSubmit: register, onCancel: function () { setAuthMode("signin"); } })
         : h(SignIn, { db: db, onSignIn: signIn, onSignUp: function () { setAuthMode("signup"); } }),
+      h(Toasts, { items: toasts, dismiss: dismiss }), h(AskHost));
+  }
+  if (!GalilPortal.inPilot(user)) {
+    return h(React.Fragment, null,
+      h(PilotClosed, { user: user, onSignOut: signOut }),
       h(Toasts, { items: toasts, dismiss: dismiss }), h(AskHost));
   }
   if (user.pendingActivation || !user.isActive) {

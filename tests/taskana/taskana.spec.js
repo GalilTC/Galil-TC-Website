@@ -1,6 +1,15 @@
 // End-to-end checks for Taskana in the Employee Portal: its main flows, the QA fixes,
 // and what it shows from WorkDesk.
 const { test, expect } = require("@playwright/test");
+
+/* The suites sign in as the whole demo team; config.js's pilot list is
+   tested on its own in tests/workdesk/pilot.spec.js. */
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    let pc;
+    Object.defineProperty(window, "PORTAL_CONFIG", { configurable: true, get: () => pc, set: v => { if (v) v.pilot = []; pc = v; } });
+  });
+});
 /* ---------------- served over https with the APIs mocked ---------------- */
 const pathM = require("path");
 const PORTAL_DIR = pathM.resolve(__dirname, "../../Employee Portal");

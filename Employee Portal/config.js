@@ -18,11 +18,22 @@
 var PORTAL_CONFIG = {
   domain: "@galiltc.co.il",
 
+  /* Pilot: only these people can sign in to the portal (WorkDesk, Taskana,
+     the Handbook, the Knowledge Base, Model Studio, HR, Defense News).
+     Everyone else sees "The portal is in a closed pilot". Empty the list
+     to open the portal to everyone at the domain. */
+  pilot: [
+    "tamir@galiltc.co.il",          // Tamir Nisman — CEO
+    "inon.kanner@galiltc.co.il",    // Inon Kanner — COO & Head of Business Division
+    "danny.gelman@galiltc.co.il",   // Danny Gelman — Project Manager
+    "daniel.barak@galiltc.co.il"    // Daniel Barak — Junior Technical Writer
+  ],
+
   storage: "github",
 
   github: {
-    owner: "DannyGelman95",
-    repo: "Galil"
+    owner: "__GALILTC_OWNER__",
+    repo: "__GALILTC_REPO__"
   },
 
   entra: {
