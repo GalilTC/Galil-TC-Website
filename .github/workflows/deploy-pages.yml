@@ -1,0 +1,81 @@
+name: Deploy the GALIL website and Employee Portal to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Website/**"
+      - "Employee Portal/**"
+      - "Welcome/**"
+      - "tools/model-studio-redirect.html"
+      - "tools/defense-news.js"
+      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch:
+  # Defense News: rebuild the news feed and republish every two hours
+  schedule:
+    - cron: "17 */2 * * *"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: Website/package-lock.json
+
+      - name: Build the website
+        working-directory: Website
+        run: |
+          npm ci
+          npm run build
+
+      # The published site: the website (Website/dist) at the root, and the
+      # Employee Portal — WorkDesk, Taskana, the Handbook, the Knowledge Base,
+      # HR and the install guide — unchanged under /employee-portal/, and the
+      # standalone welcome page that invites employees to it under /welcome/.
+      # Model Studio lives in the portal (/employee-portal/studio/); its first
+      # address, /model-studio/, sends people there.
+      - name: Assemble the published site
+        run: |
+          rm -rf pages-dist
+          mkdir -p pages-dist
+          cp -r Website/dist/. pages-dist/
+          cp -r "Employee Portal" pages-dist/employee-portal
+          cp -r Welcome pages-dist/welcome
+          mkdir -p pages-dist/model-studio
+          cp tools/model-studio-redirect.html pages-dist/model-studio/index.html
+
+      # Defense News: headlines about Israel's defense industry, from Google
+      # News, into the portal's news page (/employee-portal/news/feed.json).
+      # A failed fetch never stops the deployment; the page then says the
+      # feed isn't there yet.
+      - name: Build the Defense News feed
+        continue-on-error: true
+        run: node tools/defense-news.js "pages-dist/employee-portal/news/feed.json"
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages-dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

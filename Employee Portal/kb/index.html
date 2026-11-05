@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>GALIL Knowledge Base</title>
+<meta name="description" content="GALIL's internal employee knowledge base — onboarding, company rules and training materials.">
+<meta name="robots" content="noindex, nofollow">
+<script>
+/* set the theme before the first paint, to avoid a light/dark flash.
+   The Employee Portal's theme (shared by every part of the portal), else the system setting. */
+(function(){try{var v=localStorage.getItem("galil-workdesk-theme");
+if(v!=="dark"&&v!=="light"){v=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}
+document.documentElement.setAttribute("data-theme",v);}catch(e){}})();
+</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cpath d='M78 34H42a10 10 0 00-10 10v152a10 10 0 0010 10h36' fill='none' stroke='%231F3A66' stroke-width='18' stroke-linecap='round'/%3E%3Cpath d='M162 34h36a10 10 0 0110 10v152a10 10 0 01-10 10h-36' fill='none' stroke='%231F3A66' stroke-width='18' stroke-linecap='round'/%3E%3Cpath d='M148 92A44 44 0 10152 148V122H122' fill='none' stroke='%23F08A24' stroke-width='20' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="../shared/fonts/fonts.css">
+<link rel="stylesheet" href="../shared/chrome.css?v=2">
+<style>
+:root{
+  --paper:#F7F9FD; --surface:#FFFFFF; --wash:#E9EEF8; --sunk:#E6EBF4;
+  --ink:#1C2D4A; --body:#272E3B; --muted:#575E6B; --faint:#868C96;
+  --line:#C4D1E7; --line-soft:#DAE2F0;
+  --accent:#B5600E; --accent-bright:#F08A24; --accent-ink:#93500C;
+  --red:#E05C4B; --amber:#F0A32C; --blue:#3B7DD8;
+  --note-bg:#EAF2FC; --note-fg:#1F4E8C; --warn-bg:#FDF3E1; --warn-fg:#7A4E07;
+  --chrome-bg:#1C2D4A; --chrome-fg:#E0E7F3; --chrome-fg-soft:#AEBED9;
+  --shadow:0 1px 2px rgba(28,45,74,.05), 0 8px 24px -16px rgba(28,45,74,.28);
+  --sans:"Noto Sans","Noto Sans Hebrew",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --serif:"Noto Sans","Noto Sans Hebrew",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Noto Sans Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0D1118; --surface:#131821; --wash:#171E29; --sunk:#0F141C;
+    --ink:#DFE6F2; --body:#C6CFDE; --muted:#909AAC; --faint:#666F7F;
+    --line:#242E3E; --line-soft:#1E2635;
+    --accent:#F59A3E; --accent-bright:#FFB46B; --accent-ink:#FDCFA0;
+    --red:#F07E6E; --amber:#F5B84F; --blue:#7FB2F0;
+    --note-bg:#15263A; --note-fg:#A9CBF3; --warn-bg:#33270F; --warn-fg:#F3CD85;
+    --chrome-bg:#202A3C; --chrome-fg:#E0E7F3; --chrome-fg-soft:#A9B9D4;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0D1118; --surface:#131821; --wash:#171E29; --sunk:#0F141C;
+  --ink:#DFE6F2; --body:#C6CFDE; --muted:#909AAC; --faint:#666F7F;
+  --line:#242E3E; --line-soft:#1E2635;
+  --accent:#F59A3E; --accent-bright:#FFB46B; --accent-ink:#FDCFA0;
+  --red:#F07E6E; --amber:#F5B84F; --blue:#7FB2F0;
+  --note-bg:#15263A; --note-fg:#A9CBF3; --warn-bg:#33270F; --warn-fg:#F3CD85;
+  --chrome-bg:#202A3C; --chrome-fg:#E0E7F3; --chrome-fg-soft:#A9B9D4;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--body);
+  font-family:var(--serif); font-size:16.5px; line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent-ink); text-underline-offset:2px; text-decoration-thickness:1px}
+a:hover{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:3px}
+[hidden]{display:none !important}
+
+/* ---------- top bar: shared/chrome.css ---------- */
+
+/* ---------- shell: the contents column, then topic cards on the home screen or one focused article ---------- */
+.shell{max-width:1400px; margin:0 auto; padding:0 20px 64px}
+main{padding-block:28px; min-width:0}
+
+/* ---------- home ---------- */
+.home-h{font-family:var(--sans); font-weight:600; font-size:22px; color:var(--ink); margin:0 0 4px}
+.home-sub{color:var(--muted); margin:0 0 20px}
+.group{margin:0 0 30px}
+.group-h{display:flex; align-items:center; flex-wrap:wrap; gap:4px 10px; margin:0 0 12px}
+.group-h svg{width:20px; height:20px; color:var(--accent); flex:0 0 auto}
+.group-h h2{font-family:var(--sans); font-weight:600; font-size:17px; color:var(--ink); margin:0}
+.group-h span{font-family:var(--sans); font-size:13.5px; color:var(--muted)}
+.tcards{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:12px}
+.tcard{
+  display:flex; flex-direction:column; gap:6px; padding:16px; border-radius:12px; text-decoration:none;
+  background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow); color:var(--body);
+  transition:border-color .15s, transform .15s;
+}
+.tcard:hover{border-color:var(--accent); transform:translateY(-1px); color:var(--body)}
+.tcard svg{width:22px; height:22px; color:var(--accent)}
+.tcard b{font-family:var(--sans); font-weight:600; font-size:15.5px; color:var(--ink); line-height:1.3}
+.tcard span{font-family:var(--sans); font-size:13.5px; color:var(--muted); line-height:1.45}
+.tcard em{font-style:normal; font-family:var(--mono); font-size:11.5px; color:var(--accent-ink); margin-top:auto; padding-top:4px}
+.tcard.start{border-color:var(--accent); background:var(--wash)}
+
+/* ---------- reader ---------- */
+.reader{max-width:760px; margin:0 auto}
+.backbtn{
+  display:inline-flex; align-items:center; gap:6px; font-family:var(--sans); font-weight:600; font-size:13.5px;
+  padding:6px 13px; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--ink);
+  text-decoration:none; margin-bottom:14px;
+}
+.backbtn:hover{border-color:var(--accent); color:var(--accent-ink)}
+.backbtn svg{width:15px; height:15px}
+.ui-ic{display:inline-block; width:1.05em; height:1.05em; vertical-align:-.17em; color:var(--accent-ink)}
+.ui-ic svg{width:100%; height:100%; display:block}
+[dir="rtl"] .ui-ic[data-ic="back"] svg{transform:scaleX(-1)}
+[dir="rtl"] .backbtn svg{transform:scaleX(-1)}
+
+/* ---------- article ---------- */
+.crumbs{font-family:var(--sans); font-size:12.5px; color:var(--faint); margin-bottom:10px}
+.crumbs a{color:var(--muted); text-decoration:none}
+.crumbs a:hover{color:var(--accent-ink)}
+article h1{font-family:var(--sans); font-weight:600; font-size:clamp(24px,3vw,31px); line-height:1.15; color:var(--ink); margin:0 0 6px; letter-spacing:-.015em}
+article .meta{font-family:var(--sans); font-size:12.5px; color:var(--faint); margin-bottom:22px}
+article .lede{font-size:17.5px; color:var(--muted); margin:0 0 22px}
+article > *{max-width:70ch}
+article h2{font-family:var(--sans); font-weight:600; font-size:19px; color:var(--ink); margin:30px 0 8px}
+article h3{font-family:var(--sans); font-weight:600; font-size:16px; color:var(--ink); margin:22px 0 6px}
+article p{margin:0 0 14px}
+article ul, article ol{margin:0 0 16px; padding-inline-start:22px}
+article li{margin-bottom:6px}
+article li::marker{color:var(--accent)}
+strong{font-weight:600; color:var(--ink)}
+code{font-family:var(--mono); font-size:.87em; background:var(--sunk); padding:1px 5px; border-radius:4px; color:var(--ink)}
+.steps{list-style:none; padding:0 !important; counter-reset:s}
+.steps > li{counter-increment:s; position:relative; padding-inline-start:36px; margin-bottom:10px}
+.steps > li::before{
+  content:counter(s); position:absolute; inset-inline-start:0; top:.15em; font-family:var(--mono); font-size:11.5px; font-weight:500;
+  width:23px; height:23px; display:grid; place-items:center; border-radius:50%; background:var(--chrome-bg); color:var(--chrome-fg);
+}
+article figure{margin:4px 0 20px}
+article figure img{display:block; max-width:100%; height:auto; border:1px solid var(--line); border-radius:6px; background:var(--surface)}
+article figure.phone img{max-width:260px}
+article figcaption{font-family:var(--sans); font-size:12.5px; color:var(--muted); margin-top:6px}
+.callout{border-radius:6px; padding:12px 16px; margin:0 0 18px; font-size:15.5px; border-inline-start:3px solid}
+.callout.note{background:var(--note-bg); color:var(--note-fg); border-color:var(--blue)}
+.callout.warn{background:var(--warn-bg); color:var(--warn-fg); border-color:var(--amber)}
+.callout.tip{background:var(--wash); color:var(--body); border-color:var(--accent)}
+.callout b{color:inherit}
+table{border-collapse:collapse; width:100%; font-family:var(--sans); font-size:14px; margin:0 0 18px}
+th,td{text-align:start; padding:8px 10px; border-bottom:1px solid var(--line)}
+th{font-size:12px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); font-weight:600}
+.pager{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:40px; padding-top:18px; border-top:1px solid var(--line-soft); font-family:var(--sans); font-size:14px}
+.pager a{display:flex; flex-direction:column; gap:2px; padding:10px 14px; border:1px solid var(--line); border-radius:10px; text-decoration:none; color:var(--ink); background:var(--surface)}
+.pager a:hover{border-color:var(--accent)}
+.pager a small{font-size:11.5px; color:var(--muted)}
+.pager a.next{text-align:end; grid-column:2}
+
+/* ---------- search results ---------- */
+.results{list-style:none; padding:0; margin:0}
+.results li{padding:12px 0; border-bottom:1px solid var(--line-soft)}
+.results a{font-family:var(--sans); font-weight:600; font-size:16px; text-decoration:none}
+.results .c{font-family:var(--sans); font-size:12px; color:var(--faint); margin-inline-start:8px}
+.results p{margin:4px 0 0; font-size:14.5px; color:var(--muted)}
+
+/* ---------- gate ---------- */
+.gate{max-width:560px; margin:60px auto; padding:0 20px; text-align:center}
+.gate .card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:32px 26px; box-shadow:var(--shadow)}
+.gate .big{font-size:40px; line-height:1}
+.gate h1{font-family:var(--sans); font-weight:600; font-size:22px; color:var(--ink); margin:12px 0 8px}
+.gate p{color:var(--muted); margin:0 0 18px}
+.btn{
+  display:inline-block; font-family:var(--sans); font-weight:600; font-size:14.5px; padding:10px 18px; border-radius:10px;
+  background:var(--accent); color:#080D16; text-decoration:none;
+}
+.btn:hover{background:var(--accent-bright); color:#080D16}
+
+@media (prefers-reduced-motion:reduce){ .tcard{transition:none} }
+@media print{ .pager,.backbtn{display:none} }
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 16px}
+.chip{font-family:var(--sans); font-size:12.5px; font-weight:600; border:1px solid var(--line); background:var(--wash); color:var(--accent-ink); border-radius:999px; padding:2px 10px}
+/* the Word course: document-type cards and the shortcut sheet */
+.docmocks{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin:0 0 20px; max-width:none !important}
+.docmock{display:flex; flex-direction:column; gap:6px; min-height:190px; max-width:100%; padding:10px 14px; background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow); border-radius:3px; font-family:var(--sans)}
+.docmock .mk{font-size:9.5px; letter-spacing:.14em; text-align:center; color:var(--muted); font-weight:600}
+.docmock .mk:last-child{margin-top:auto}
+.docmock b{font-size:13.5px; color:var(--ink); line-height:1.3; padding-bottom:6px; border-bottom:2px solid var(--accent)}
+.docmock span{font-size:12px; color:var(--muted); line-height:1.5}
+.kbd-table td:first-child{white-space:nowrap}
+/* sections with sub-sections (Technical Writing Training: Word, Excel, PowerPoint) */
+.subgroup{margin:0 0 18px}
+.sub-h{font-family:var(--sans); font-weight:600; font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin:0 0 8px}
+.soon{font-family:var(--sans); font-size:13.5px; color:var(--faint); margin:0; padding:12px 16px; border:1px dashed var(--line); border-radius:12px}
+</style>
+</head>
+<body>
+
+<header class="topbar" id="topbar">
+  <div class="topbar-in">
+    <a class="wordmark" href="#/">
+      <svg viewBox="0 0 60 46" aria-hidden="true"><path d="M2 30 C10 6, 20 6, 28 24 S46 42, 58 12" fill="none" stroke="#F08A24" stroke-width="6" stroke-linecap="round"/></svg>
+      <div><b>GALIL</b><small data-t="kicker">Employee Portal · Knowledge Base</small></div>
+    </a>
+    <div class="search" id="searchwrap" hidden>
+      <span class="ic" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="display:block"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
+      <input type="search" id="q" autocomplete="off">
+    </div>
+    <div class="tools">
+      <span class="who" id="who"></span>
+      <a class="iconlink" href="../index.html" id="to-portal" data-tip="portal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg></a>
+      <a class="iconlink" href="../index.html#/workdesk/time" id="to-workdesk" title="WorkDesk" aria-label="WorkDesk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2M2 13h20"/></svg></a>
+      <a class="iconlink" href="../taskana/index.html" id="to-taskana" title="Taskana" aria-label="Taskana"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12l3 3 5-6"/></svg></a>
+      <a class="iconlink" href="../handbook/index.html" id="to-handbook" data-tip="handbook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg></a>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" class="langbtn" id="langbtn"></button>
+      <button type="button" class="themebtn" id="themebtn" title="Switch theme" aria-label="Switch to the dark theme">◐</button>
+    </div>
+  </div>
+</header>
+
+<div class="shell layout" id="shell" hidden>
+  <nav class="toc" id="toc"></nav>
+  <main id="main" tabindex="-1"></main>
+</div>
+
+<script src="../config.js"></script>
+<script src="../shared/portal.js"></script>
+<script src="../shared/films.js?v=1"></script>
+<script src="../shared/toc.js?v=1"></script>
+<script src="articles.js"></script>
+<script>
+"use strict";
+/* =====================================================================
+   GALIL Knowledge Base — part of the Employee Portal.
+   Who may read it is the person's portal access (shared/portal.js): the
+   portal sign-in, and the Knowledge Base ticked in their access (by
+   default every role except External Contractor and Viewer). The page
+   follows the portal's language (English / Hebrew) and theme.
+   Like the rest of the standalone build this is a client-side check; with
+   Microsoft Entra ID it should also sit behind the same sign-in on the server.
+   ===================================================================== */
+var LANG = GalilPortal.applyLang();
+var UI = {
+  portal: ["Employee Portal home", "דף הבית של פורטל העובדים"], handbook: ["Handbook", "מדריך למשתמש"],
+  toc: ["Contents", "תוכן העניינים"], onPage: ["On this page", "בעמוד זה"], tocLabel: ["Table of contents", "תוכן העניינים"],
+  kicker: ["Employee Portal · Knowledge Base", "פורטל העובדים · מאגר ידע"], title: ["Knowledge Base", "מאגר ידע"],
+  search: ["Search articles (e.g. VPN, leave, Taskana)", "חיפוש מאמרים (למשל VPN, חופשה, Taskana)"], searchLabel: ["Search the knowledge base", "חיפוש במאגר הידע"],
+  homeH: ["What do you need to know?", "מה תרצו לדעת?"], homeSub: ["Pick a topic, or search above. New here? Start with the first-week checklist.", "בחרו נושא, או חפשו למעלה. חדשים כאן? התחילו ברשימת המשימות לשבוע הראשון."],
+  allTopics: ["All topics", "כל הנושאים"], prev: ["‹ Previous", "הקודם ›"], next: ["Next ›", "‹ הבא"], minRead: ["{n} min read", "{n} דק׳ קריאה"],
+  clear: ["Clear the search", "ניקוי החיפוש"], soon: ["Coming soon.", "בקרוב."],
+  updated: ["Last updated", "עודכן לאחרונה"], results1: ["1 result for", "תוצאה אחת עבור"], resultsN: ["{n} results for", "{n} תוצאות עבור"],
+  none: ["No articles match. Try a different word, or <a href=\"#/\" data-clear>browse all topics</a>.", "לא נמצאו מאמרים. נסו מילה אחרת, או <a href=\"#/\" data-clear>עיינו בכל הנושאים</a>."],
+  signedIn: ["Signed in as", "מחובר/ת בתור"], siteTitle: ["GALIL Knowledge Base", "מאגר הידע של גליל"], searchTitle: ["Search", "חיפוש"],
+  dark: ["Switch to the dark theme", "מעבר לערכת נושא כהה"], light: ["Switch to the light theme", "מעבר לערכת נושא בהירה"]
+};
+var ROLE_NAMES = {
+  EMP: ["Employee", "עובד/ת"], SEN: ["Senior Employee", "עובד/ת בכיר/ה"], TL: ["Team Lead", "ראש צוות"], PM: ["Project Manager", "מנהל/ת פרויקט"],
+  OPS: ["Operations Manager", "מנהל/ת תפעול"], FIN: ["Finance", "כספים"], CEO: ["CEO / Owner", "מנכ\"ל / בעלים"], EXT: ["External Contractor", "קבלן חיצוני"], VIEW: ["Viewer", "צופה"]
+};
+function T(k) { var v = UI[k]; return LANG === "he" ? v[1] : v[0]; }
+function L(o) { return o && typeof o === "object" ? (LANG === "he" && o.he ? o.he : o.en) : o; }
+var HE_MONTHS = { Jan: "בינו׳", Feb: "בפבר׳", Mar: "במרץ", Apr: "באפר׳", May: "במאי", Jun: "ביוני", Jul: "ביולי", Aug: "באוג׳", Sep: "בספט׳", Oct: "באוק׳", Nov: "בנוב׳", Dec: "בדצמ׳" };
+function when(s) { if (LANG !== "he") return s; var p = s.split(" "); return p[0] + " " + (HE_MONTHS[p[1]] || p[1]) + " " + p[2]; }
+
+/* ================= rendering ================= */
+function byId(id) { for (var i = 0; i < ARTICLES.length; i++) if (ARTICLES[i].id === id) return ARTICLES[i]; return null; }
+function catOf(k) { for (var i = 0; i < CATS.length; i++) if (CATS[i].k === k) return CATS[i]; return null; }
+function inCat(k, sub) { return ARTICLES.filter(function (a) { return a.cat === k && (!sub || a.sub === sub); }); }
+function subOf(c, k) { for (var i = 0; c && c.subs && i < c.subs.length; i++) if (c.subs[i].k === k) return c.subs[i]; return null; }
+function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+function textOf(html) { var d = document.createElement("div"); d.innerHTML = html; return d.textContent || ""; }
+
+var main = document.getElementById("main");
+var q = document.getElementById("q");
+
+/* line icons, drawn in currentColor like the portal's own */
+var ICONS = {
+  qr: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM21 14v.01M14 21h.01M17 17h4v4h-4z"/>',
+  refresh: '<path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/><path d="M21 3v5h-5"/>',
+  play: '<path d="M6 3l14 9-14 9z"/>',
+  square: '<rect x="5" y="5" width="14" height="14" rx="2"/>',
+  onboarding: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>',
+  portal: '<path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/>',
+  rules: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 15l2 2 4-4"/>',
+  training: '<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>',
+  techwriting: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  back: '<path d="M19 12H5M12 19l-7-7 7-7"/>',
+  /* the WorkDesk buttons the articles name */
+  edit: '<path d="M21.17 6.81a1 1 0 0 0-3.99-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5z"/><path d="M15 5l4 4"/>',
+  copy: '<rect x="8" y="8" width="14" height="14" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+  sliders: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
+  assignments: '<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2M12 11h4M12 16h4M8 11h.01M8 16h.01"/>',
+  home: '<path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  book: '<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>',
+  help: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/>',
+  file: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M16 13H8M16 17H8M10 9H8"/>'
+};
+/* <i class="ui-ic" data-ic="edit"></i> in an article draws that button's icon */
+function paintIcons(root) {
+  root.querySelectorAll("i.ui-ic").forEach(function (el) { el.innerHTML = icon(el.getAttribute("data-ic")); el.setAttribute("role", "img"); el.setAttribute("aria-label", el.getAttribute("data-ic")); });
+}
+function icon(k) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONS[k] || ICONS.rules) + '</svg>'; }
+function minutes(a) { return Math.max(1, Math.round(textOf(L(a.body)).split(/\s+/).length / 200)); }
+function card(a, cls) {
+  return '<a class="tcard' + (cls ? " " + cls : "") + '" href="#/' + a.id + '">' + icon(a.cat) +
+    '<b>' + esc(L(a.title)) + '</b><span>' + esc(L(a.summary)) + '</span><em>' + T("minRead").replace("{n}", minutes(a)) + '</em></a>';
+}
+function setReading(on) { document.body.classList.toggle("reading", on); }
+
+/* ---- the floating table of contents: the topics on the home screen, the article's headings while reading ---- */
+var tocEl = document.getElementById("toc");
+function tocHome() {
+  GalilToc.render(tocEl, [{ title: T("toc"), items: [].concat.apply([], CATS.map(function (c) {
+    return [{ text: L(c.title), target: "cat-" + c.k }].concat((c.subs || []).map(function (s) { return { text: L(s.title), target: "sub-" + s.k, level: 2 }; }));
+  })) }]);
+}
+function tocArticle(a) {
+  var heads = main.querySelectorAll("article h2, article h3"), c = catOf(a.cat), sub = subOf(c, a.sub);
+  heads.forEach(function (h, i) { if (!h.id) h.id = "s-" + (i + 1); });
+  GalilToc.render(tocEl, [
+    { title: T("onPage"), items: Array.prototype.map.call(heads, function (h) { return { text: h.textContent, target: h.id, level: h.tagName === "H3" ? 2 : 1 }; }) },
+    { title: L((sub || c).title), items: inCat(a.cat, a.sub).map(function (x) { return { text: L(x.title), href: "#/" + x.id, cur: x === a }; }) }
+  ]);
+}
+
+function renderHome() {
+  document.title = T("siteTitle");
+  setReading(false);
+  main.innerHTML = '<h2 class="home-h">' + T("homeH") + '</h2><p class="home-sub">' + T("homeSub") + '</p>' +
+    CATS.map(function (c) {
+      var cards = function (list) { return '<div class="tcards">' + list.map(function (a) { return card(a, a.id === "first-week" || a.id === "word-course" ? "start" : ""); }).join("") + '</div>'; };
+      return '<section class="group" id="cat-' + c.k + '"><div class="group-h">' + icon(c.k) + '<h2>' + esc(L(c.title)) + '</h2><span>' + esc(L(c.desc)) + '</span></div>' +
+        (c.subs ? c.subs.map(function (s) {
+          var list = inCat(c.k, s.k);
+          return '<div class="subgroup" id="sub-' + s.k + '"><h3 class="sub-h">' + esc(L(s.title)) + '</h3>' + (list.length ? cards(list) : '<p class="soon">' + T("soon") + '</p>') + '</div>';
+        }).join("") : cards(inCat(c.k))) + '</section>';
+    }).join("");
+  tocHome();
+}
+/* the Handbook's tutorial films for the article, right after its opening paragraph */
+var ARTICLE_FILMS = {
+  "portal-signin": "portal-signin-desktop", "portal-access": "workdesk-management-people-desktop",
+  "portal-around": "workdesk-mywork-desktop workdesk-more-phone", "portal-install": "portal-home-phone",
+  "portal-how": "portal-home-desktop",
+  "workdesk-time": "workdesk-timelog-desktop workdesk-time-phone", "workdesk-leave": "workdesk-timelog-desktop",
+  "workdesk-plan": "workdesk-planner-desktop workdesk-plan-phone", "workdesk-dashboard": "workdesk-dashboard-desktop",
+  "workdesk-expenses": "workdesk-expenses-desktop workdesk-expenses-phone", "workdesk-wo-document": "workdesk-management-work-desktop",
+  "taskana-tasks": "taskana-tasks-desktop taskana-phone", "library-start": "taskana-library-desktop"
+};
+function withFilms(a, html) {
+  var ids = ARTICLE_FILMS[a.id];
+  if (!ids || !window.GalilFilms) return html;
+  var block = '<div class="films" data-films="' + ids + '"></div>', k = html.indexOf("</p>");
+  return k < 0 ? block + html : html.slice(0, k + 4) + block + html.slice(k + 4);
+}
+function renderArticle(a) {
+  /* in a sub-section (a course), Previous and Next stay inside it */
+  var list = a.sub ? inCat(a.cat, a.sub) : ARTICLES, i = list.indexOf(a), prev = list[i - 1], next = list[i + 1], c = catOf(a.cat), sub = subOf(c, a.sub);
+  document.title = L(a.title) + " · " + T("siteTitle");
+  setReading(true);
+  main.innerHTML = '<div class="reader"><a class="backbtn" href="#/">' + icon("back") + T("allTopics") + '</a>' +
+    '<div class="crumbs"><a href="#/">' + T("title") + '</a> › ' + esc(L(c.title)) + (sub ? ' › ' + esc(L(sub.title)) : '') + '</div>' +
+    '<article><h1>' + esc(L(a.title)) + '</h1><div class="meta">' + T("minRead").replace("{n}", minutes(a)) + ' · ' + T("updated") + ' ' + esc(when(a.updated)) + '</div>' + withFilms(a, L(a.body)) + '</article>' +
+    '<div class="pager">' +
+      (prev ? '<a href="#/' + prev.id + '"><small>' + T("prev") + '</small>' + esc(L(prev.title)) + '</a>' : '') +
+      (next ? '<a class="next" href="#/' + next.id + '"><small>' + T("next") + '</small>' + esc(L(next.title)) + '</a>' : '') +
+    '</div></div>';
+  paintIcons(main);
+  if (window.GalilFilms) GalilFilms.fill(main, "../handbook/films/");
+  tocArticle(a);
+}
+function renderSearch(term) {
+  var t = term.trim().toLowerCase();
+  /* search both languages, so an English word finds a Hebrew article and the other way round */
+  var hits = ARTICLES.filter(function (a) {
+    return [a.title.en, a.title.he, a.summary.en, a.summary.he, textOf(a.body.en), textOf(a.body.he)].join(" ").toLowerCase().indexOf(t) >= 0;
+  });
+  document.title = T("searchTitle") + " · " + T("siteTitle");
+  setReading(false);
+  main.innerHTML = '<h2 class="home-h">' + (hits.length === 1 ? T("results1") : T("resultsN").replace("{n}", hits.length)) + ' “' + esc(term.trim()) + '”</h2>' +
+    (hits.length ? '<p class="home-sub"><a href="#/" data-clear>' + T("clear") + '</a></p><div class="tcards">' + hits.map(function (a) { return card(a); }).join("") + '</div>'
+      : '<p class="home-sub">' + T("none") + '</p>');
+  tocEl.innerHTML = "";
+}
+function route() {
+  var id = (location.hash || "").replace(/^#\/?/, "");
+  var a = id ? byId(id) : null;
+  if (q.value.trim() && !id) { renderSearch(q.value); return; }
+  if (a) renderArticle(a); else renderHome();
+  window.scrollTo(0, 0);
+  GalilToc.spy();
+}
+
+/* ---- interface words, language switch ---- */
+document.querySelectorAll("[data-t]").forEach(function (el) { el.textContent = T(el.getAttribute("data-t")); });
+document.querySelectorAll("[data-tip]").forEach(function (el) { el.title = T(el.getAttribute("data-tip")); el.setAttribute("aria-label", el.title); });
+document.getElementById("toc").setAttribute("aria-label", T("tocLabel"));
+GalilToc.track(document.getElementById("topbar"));
+q.placeholder = T("search"); q.setAttribute("aria-label", T("searchLabel"));
+/* one button naming the other language, as in the Handbook */
+(function (b) {
+  var he = LANG === "he";
+  b.textContent = he ? "English" : "עברית"; b.lang = he ? "en" : "he"; b.title = he ? "English — אנגלית" : "עברית — Hebrew";
+  b.addEventListener("click", function () { GalilPortal.setLang(he ? "en" : "he"); });
+})(document.getElementById("langbtn"));
+
+(function boot() {
+  var user = GalilPortal.gate("kb");
+  if (!user) return;
+  var nm = LANG === "he" && user.fullNameHe ? user.fullNameHe : (user.fullName || user.email || "");
+  document.getElementById("who").innerHTML = T("signedIn") + ' <b>' + esc(nm) + '</b> · ' + esc((ROLE_NAMES[user.role] || [user.role, user.role])[LANG === "he" ? 1 : 0]);
+  document.getElementById("shell").hidden = false;
+  document.getElementById("searchwrap").hidden = false;
+
+  window.addEventListener("hashchange", function () { q.value = ""; route(); });
+  q.addEventListener("input", function () {
+    if (q.value.trim()) { if (location.hash && location.hash !== "#/") history.replaceState(null, "", "#/"); renderSearch(q.value); }
+    else route();
+  });
+  main.addEventListener("click", function (e) {
+    if (e.target.closest("[data-clear]")) { e.preventDefault(); q.value = ""; history.replaceState(null, "", "#/"); route(); }
+  });
+  route();
+})();
+
+/* ---- light / dark theme: the portal's, shared by every part of it ---- */
+(function () {
+  var btn = document.getElementById("themebtn");
+  function paint(t) {
+    document.documentElement.setAttribute("data-theme", t);
+    btn.innerHTML = t === "dark"
+      ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'
+      : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>';
+    btn.setAttribute("aria-label", t === "dark" ? T("light") : T("dark"));
+    btn.title = btn.getAttribute("aria-label");
+  }
+  paint(GalilPortal.theme());
+  btn.addEventListener("click", function () { var next = GalilPortal.theme() === "dark" ? "light" : "dark"; GalilPortal.setTheme(next); paint(next); });
+})();
+</script>
+</body>
+</html>
