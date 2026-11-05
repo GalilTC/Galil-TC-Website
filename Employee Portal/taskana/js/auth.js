@@ -127,7 +127,7 @@ function connectionModal() {
       h("div", { class: "field" }, h("label", { class: "l", for: "cx-storage" }, tr("Data location")),
         h("select", { class: "f", id: "cx-storage" }, [["local", tr("This browser only (demo)")], ["github", tr("A data file in a GitHub repository")], ["onedrive", tr("A OneDrive folder (needs Microsoft Entra ID)")]].map(function (o) { return h("option", { value: o[0], selected: STORAGE === o[0] }, o[1]); }))),
       h("h3", { style: { gridColumn: "1/-1", margin: "6px 0 4px" } }, "GitHub"),
-      inp("cx-gh-repo", tr("Repository (owner/name)"), g.owner && g.repo ? g.owner + "/" + g.repo : "", "__GALILTC_OWNER__/__GALILTC_REPO__"),
+      inp("cx-gh-repo", tr("Repository (owner/name)"), g.owner && g.repo ? g.owner + "/" + g.repo : "", "GalilTC/Galil-TC-Website"),
       inp("cx-gh-branch", tr("Branch for the data"), g.branch, "taskana-data", "mono", tr("Created automatically on first use.")),
       inp("cx-gh-path", tr("Folder in the repository"), g.path, "taskana", "mono"),
       h("h3", { style: { gridColumn: "1/-1", margin: "6px 0 4px" } }, "Microsoft 365"),

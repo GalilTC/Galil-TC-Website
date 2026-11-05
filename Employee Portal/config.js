@@ -32,8 +32,8 @@ var PORTAL_CONFIG = {
   storage: "github",
 
   github: {
-    owner: "__GALILTC_OWNER__",
-    repo: "__GALILTC_REPO__"
+    owner: "GalilTC",
+    repo: "Galil-TC-Website"
   },
 
   entra: {

@@ -51,7 +51,7 @@ const COMPANIES = [
 ];
 
 const DAYS = 30, MAX_ITEMS = 600, PER_QUERY = 60;
-const UA = "Mozilla/5.0 (compatible; GALIL-Portal-News/1.0; +https://github.com/__GALILTC_OWNER__/__GALILTC_REPO__)";
+const UA = "Mozilla/5.0 (compatible; GALIL-Portal-News/1.0; +https://github.com/GalilTC/Galil-TC-Website)";
 
 function rssUrl(query, lang) {
   const q = encodeURIComponent(query + " when:" + DAYS + "d");
