@@ -7,7 +7,7 @@ const { test, expect } = require("@playwright/test");
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     let pc;
-    Object.defineProperty(window, "PORTAL_CONFIG", { configurable: true, get: () => pc, set: v => { if (v) v.pilot = []; pc = v; } });
+    Object.defineProperty(window, "PORTAL_CONFIG", { configurable: true, get: () => pc, set: v => { if (v) { v.pilot = []; v.demoData = true; } pc = v; } });
   });
 });
 const fs = require("fs"), path = require("path");

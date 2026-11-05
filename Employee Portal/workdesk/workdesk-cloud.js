@@ -382,7 +382,7 @@ var WDCloud = (function () {
       el("p", { style: "font-size:13.5px;margin:0 0 12px" }, "There's no WorkDesk data in " + ((S.folder && S.folder.name) || where()) + " yet. Start it now:"),
       el("div", { style: "display:grid;gap:8px" },
         el("button", { class: "btn p", onclick: function () { start(S.hooks.seed(false)); } }, "Start with the GALIL team (no work yet)"),
-        el("button", { class: "btn", onclick: function () { start(S.hooks.seed(true)); } }, "Start with the team and demo data"),
+        typeof PORTAL_DEMO === "undefined" || PORTAL_DEMO ? el("button", { class: "btn", onclick: function () { start(S.hooks.seed(true)); } }, "Start with the team and demo data") : null,
         el("button", { class: "btn", onclick: function () { fileIn.click(); } }, "Start from a WorkDesk backup file…"), fileIn)));
   }
   function errorScreen(root, retry) {
@@ -478,7 +478,7 @@ var WDCloud = (function () {
         el("div", { class: "h3" }, "Connection settings"),
         el("div", { class: "cap" }, "Where WorkDesk keeps its data and how people sign in. config.js sets this for everyone; what you save here applies to this browser only."),
         el("label", { style: "display:grid;gap:4px;font-size:12.5px;color:var(--muted)" }, "Data location", sel),
-        field("cx-repo", "GitHub repository (owner/name)", g.owner && g.repo ? g.owner + "/" + g.repo : "", "GalilTC/Galil-TC-Website"),
+        field("cx-repo", "GitHub repository (owner/name)", g.owner && g.repo ? g.owner + "/" + g.repo : "", "GalilTC/Galil-TC-Data"),
         field("cx-branch", "GitHub branch for the data", g.branch, "workdesk-data"),
         field("cx-client", "Microsoft Entra application (client) ID", C.entra.clientId, "00000000-0000-0000-0000-000000000000"),
         field("cx-tenant", "Directory (tenant) ID", C.entra.tenantId, "optional"),

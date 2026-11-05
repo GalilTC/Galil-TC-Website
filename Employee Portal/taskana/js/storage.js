@@ -421,7 +421,7 @@ function setupScreen() {
     h("p", null, tr("There's no Taskana data in {f} yet. Start it now:", { f: "“" + (f.name || whereName()) + "”" }) + " " + tr("People, clients and projects come from WorkDesk.")),
     h("div", { class: "grid", style: { gap: "8px" } },
       h("button", { class: "btn primary wide", onclick: function () { startFresh(seed(false)); } }, icon("people"), tr("Start with no tasks")),
-      h("button", { class: "btn wide", onclick: function () { startFresh(Object.assign(seed(false), { withDemo: true })); } }, icon("board"), tr("Start with demo tasks on WorkDesk's projects")),
+      PORTAL_DEMO ? h("button", { class: "btn wide", onclick: function () { startFresh(Object.assign(seed(false), { withDemo: true })); } }, icon("board"), tr("Start with demo tasks on WorkDesk's projects")) : null,
       h("label", { class: "btn wide" }, icon("upload"), tr("Start from a Taskana backup file…"), h("input", { type: "file", class: "sr", accept: "application/json,.json", onchange: function (e) {
         var file = e.target.files[0]; if (!file) return;
         var rd = new FileReader();

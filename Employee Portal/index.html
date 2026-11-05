@@ -24232,11 +24232,11 @@ function AdminModal(p) {
             h("div", { className: "cap" }, (WDCloud.storage === "github" ? "A data file in the GitHub repository " : "Files in the OneDrive folder ") + (((WDCloud.describe().folder || {}).name) || "") + ". " +
               (WDCloud.storage === "github" ? "Every save is a commit, so the branch history is the backup." : "A dated copy goes to backups/ once a day.")),
             h("div", { className: "row", style: { gap: 8, flexWrap: "wrap" } }, h(Btn, { sm: true, onClick: function () { WDCloud.showInfo(); } }, "Details"))) : null,
-          h("div", { className: "panel pad col", style: { gap: 8 } },
+          !PORTAL_DEMO && !hasDemo(db) ? null : h("div", { className: "panel pad col", style: { gap: 8 } },
             h("div", { className: "h3" }, "Demo data"),
             h("div", { className: "cap" }, "Made-up clients, projects, work orders, budgets, hours and expenses for the real GALIL team — different every time. Demo records are marked, so removing them leaves real work alone. Taskana fills its own demo tasks on these projects."),
             h("div", { className: "row", style: { gap: 8, flexWrap: "wrap" } },
-              h(Btn, { onClick: function () { ask({ title: "Fill with demo data?", message: "Adds random demo work for the team, replacing earlier demo data. Real records stay as they are.", okLabel: "Fill" }).then(function (yes) { if (yes) { p.mutate(function (d) { addDemo(d); audit(d, user.id, "Demo data added", "-", "-", null, null); }); toast("Demo data added.", "ok"); } }); } }, "Fill with demo data"),
+              !PORTAL_DEMO ? null : h(Btn, { onClick: function () { ask({ title: "Fill with demo data?", message: "Adds random demo work for the team, replacing earlier demo data. Real records stay as they are.", okLabel: "Fill" }).then(function (yes) { if (yes) { p.mutate(function (d) { addDemo(d); audit(d, user.id, "Demo data added", "-", "-", null, null); }); toast("Demo data added.", "ok"); } }); } }, "Fill with demo data"),
               hasDemo(db) ? h(Btn, { kind: "d", onClick: function () { ask({ title: "Remove the demo data?", message: "Demo clients, projects, work orders, budgets, hours, plans, expenses and approvals are removed. Real records and people stay.", okLabel: "Remove", danger: true }).then(function (yes) { if (yes) { p.mutate(function (d) { removeDemo(d); audit(d, user.id, "Demo data removed", "-", "-", null, null); }); toast("Demo data removed.", "ok"); } }); } }, "Remove demo data") : null)),
           h("div", { className: "panel pad col", style: { gap: 8 } },
             h("div", { className: "h3" }, "Reset"),
@@ -24244,7 +24244,7 @@ function AdminModal(p) {
             h(Btn, { kind: "d", onClick: function () {
               ask({ title: "Reset to seed data?", message: "This wipes every record stored in this browser and reloads the demonstration data. It cannot be undone \u2014 download a backup first if you need one.", okLabel: "Wipe and reload", danger: true }).then(function (yes) {
                 if (!yes) return;
-                if (WDCloud.remote) { p.mutate(function (d) { var s = seed(); Object.keys(s).forEach(function (k) { d[k] = s[k]; }); }); toast("Everything was replaced with the GALIL team and fresh demo data.", "ok"); return; }
+                if (WDCloud.remote) { p.mutate(function (d) { var s = seed(); Object.keys(s).forEach(function (k) { d[k] = s[k]; }); }); toast(PORTAL_DEMO ? "Everything was replaced with the GALIL team and fresh demo data." : "Everything was replaced with the team and no work.", "ok"); return; }
                 writeRaw(wrap(seed())); location.reload();
               });
             } }, "Reset to seed data"))) : null,

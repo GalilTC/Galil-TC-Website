@@ -29,11 +29,17 @@ var PORTAL_CONFIG = {
     "daniel.barak@galiltc.co.il"    // Daniel Barak — Junior Technical Writer
   ],
 
+  /* false: a new data file starts with only the pilot people above (or the
+     whole GALIL team when the pilot list is empty), with no demo work, demo
+     tasks or demo HR posts, and the "demo data" buttons are hidden. */
+  demoData: false,
+
   storage: "github",
 
+  /* the data lives in a PRIVATE repository, apart from the public website */
   github: {
     owner: "GalilTC",
-    repo: "Galil-TC-Website"
+    repo: "Galil-TC-Data"
   },
 
   entra: {
@@ -67,6 +73,8 @@ var PORTAL_CONFIG = {
 };
 
 /* ---- what each app reads (no need to edit below this line) ---- */
+var PORTAL_DEMO = PORTAL_CONFIG.demoData !== false;
+var PORTAL_PILOT = (PORTAL_CONFIG.pilot || []).map(function (e) { return String(e).trim().toLowerCase(); });
 var WORKDESK_CONFIG = {
   domain: PORTAL_CONFIG.domain,
   storage: PORTAL_CONFIG.storage,

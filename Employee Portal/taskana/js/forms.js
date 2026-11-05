@@ -219,7 +219,7 @@ function dataModal() {
       h("h3", null, tr("Demo data")),
       h("p", { class: "small muted" }, tr("Made-up tasks, comments and questions for the real GALIL team on WorkDesk's projects — different every time. Demo records are marked, so removing them leaves real work alone.")),
       h("div", { class: "row wrap" },
-        h("button", { class: "btn", id: "demo-fill", onclick: function () {
+        !PORTAL_DEMO ? null : h("button", { class: "btn", id: "demo-fill", onclick: function () {
           confirmBox(tr("Fill with demo data?"), tr("Adds random demo tasks for the team on WorkDesk's projects (replacing earlier demo data). Real tasks stay as they are."), tr("Fill"), function () {
             keepUndo(); addDemo(db); save(); finish(); ui.openTask = null; clearFilters(); toast(tr("Demo data added")); go("home"); render();
           }, false);
@@ -229,7 +229,7 @@ function dataModal() {
             keepUndo(); removeDemo(db); save(); finish(); ui.openTask = null; clearFilters(); toast(tr("Demo data removed")); go("home"); render();
           });
         } }, icon("trash"), tr("Remove demo data")) : null,
-        h("button", { class: "btn danger", onclick: function () {
+        !PORTAL_DEMO ? null : h("button", { class: "btn danger", onclick: function () {
           confirmBox(tr("Reset to the demo data?"), remote ? tr("Every task on {w} is replaced with fresh demo tasks. You can undo this from the Data window.", { w: whereName() }) : tr("All tasks and comments in this browser are replaced with fresh demo tasks. You can undo this from the Data window."), tr("Reset"), function () {
             keepUndo(); var fresh = seed(false); syncFromWorkdesk(fresh); addDemo(fresh); replaceData(fresh); finish(); ui.openTask = null; clearFilters(); go("home"); render();
           });

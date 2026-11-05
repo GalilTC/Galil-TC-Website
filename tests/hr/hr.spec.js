@@ -7,7 +7,7 @@ const { test, expect } = require("@playwright/test");
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     let pc;
-    Object.defineProperty(window, "PORTAL_CONFIG", { configurable: true, get: () => pc, set: v => { if (v) v.pilot = []; pc = v; } });
+    Object.defineProperty(window, "PORTAL_CONFIG", { configurable: true, get: () => pc, set: v => { if (v) { v.pilot = []; v.demoData = true; } pc = v; } });
   });
 });
 const path = require("path");
@@ -315,7 +315,7 @@ test("people, celebrations and kudos", async ({ page }) => {
   await open(page, "people", "u-danny");
   await expect(page.locator("#people-grid .pcard")).toHaveCount(22);
   await page.fill("#people-q", "defense");
-  await expect(page.locator("#people-grid .pcard")).toHaveCount(4);
+  await expect(page.locator("#people-grid .pcard")).toHaveCount(3);
   await page.locator("#people-grid .pcard").filter({ hasText: "Daniel Barak" }).getByRole("button", { name: "Say thanks" }).click();
   await expect(page.locator("#kd-to")).toHaveValue("u-daniel");
   await page.fill("#kd-text", "Great review comments on the manual.");

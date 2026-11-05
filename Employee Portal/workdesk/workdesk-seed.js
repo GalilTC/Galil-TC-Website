@@ -12,7 +12,7 @@
 /* id, full name, Hebrew name, email, role, job title, department, team, reports to */
 var WD_TEAM = [
   ["u-tamir",    "Tamir Nisman",    "תמיר ניסמן",     "tamir@galiltc.co.il",         "CEO", "CEO",                                          "Management",       null,         null],
-  ["u-inon",     "Inon Kanner",     "ינון כנר",       "inon.kanner@galiltc.co.il",   "OPS", "Deputy CEO, Operations · Head of the Defense Division", "Management", null,     "u-tamir"],
+  ["u-inon",     "Inon Kanner",     "ינון כנר",       "inon.kanner@galiltc.co.il",   "OPS", "Chief Operating Officer & Head of Business Division", "Management", null,     "u-tamir"],
   ["u-kfir",     "Kfir Hodara",     "כפיר חודרה",     "kfir@galiltc.co.il",          "PM",  "Client Manager",                               "Civil Division",   "team-kfir",  "u-inon"],
   ["u-dennis",   "Dennis Sablin",   "דניס סבלין",     "dennis.sablin@galiltc.co.il", "EMP", "Technical Writer",                             "Civil Division",   "team-kfir",  "u-kfir"],
   ["u-shoshana", "Shoshana Axtell", "שושנה אקסל",     "shoshana.a@galiltc.co.il",    "EMP", "Technical Writer",                             "Civil Division",   "team-kfir",  "u-kfir"],
@@ -26,9 +26,9 @@ var WD_TEAM = [
   ["u-niv",      "Niv Passy",       "ניב פסי",        "niv.passy@galiltc.co.il",     "PM",  "Client Manager",                               "Civil Division",   "team-niv",   "u-inon"],
   ["u-penina",   "Penina Smith",    "פנינה סמית'",    "penina@galiltc.co.il",        "EMP", "Technical Writer",                             "Civil Division",   "team-niv",   "u-niv"],
   ["u-yosi",     "Yosi Francos",    "יוסי פרנקוס",    "yosi.f@galiltc.co.il",        "EMP", "Technical Writer",                             "Civil Division",   "team-niv",   "u-niv"],
-  ["u-danny",    "Danny Gelman",    "דני גלמן",       "danny.gelman@galiltc.co.il",  "PM",  "Defense Sector Project Manager",               "Defense Division", "team-def",   "u-inon"],
+  ["u-danny",    "Danny Gelman",    "דני גלמן",       "danny.gelman@galiltc.co.il",  "PM",  "Project Manager",                              "Defense Division", "team-def",   "u-inon"],
   ["u-eitan",    "Eitan Fisch",     "איתן פיש",       "eitan.f@galiltc.co.il",       "EMP", "Technical Writer",                             "Defense Division", "team-def",   "u-danny"],
-  ["u-daniel",   "Daniel Barak",    "דניאל ברק",      "daniel.barak@galiltc.co.il",  "EMP", "Technical Writer",                             "Defense Division", "team-def",   "u-danny"],
+  ["u-daniel",   "Daniel Barak",    "דניאל ברק",      "daniel.barak@galiltc.co.il",  "EMP", "Junior Technical Writer",                      "Defense Division", "team-def",   "u-danny"],
   ["u-gil",      "Gil Hadar",       "גיל הדר",        "gil.hadar@galiltc.co.il",     "EXT", "Engineer (outsourced)",                        "Engineering",      null,         "u-inon"],
   ["u-ofir",     "Ofir Abutbul",    "אופיר אבוטבול",  "ofir.abutbul@galiltc.co.il",  "EXT", "Engineer (outsourced)",                        "Engineering",      null,         "u-inon"],
   ["u-ronen",    "Ronen Nachum",    "רונן נחום",      "ronen.nachum@galiltc.co.il",  "EXT", "Engineer (outsourced)",                        "Engineering",      null,         "u-inon"],
@@ -42,8 +42,13 @@ var WD_TEAMS = [
   ["team-def",    "Defense",               "u-danny",  "Defense Division", "#1F7F72", "DEF"]
 ];
 
+/* config.js → pilot: a new data file starts with the pilot people only */
+function wdTeamRows() {
+  var pilot = typeof PORTAL_PILOT !== "undefined" ? PORTAL_PILOT : [];
+  return pilot.length ? WD_TEAM.filter(function (r) { return pilot.indexOf(r[3]) >= 0; }) : WD_TEAM;
+}
 function wdTeamUsers() {
-  return WD_TEAM.map(function (r) {
+  return wdTeamRows().map(function (r) {
     var u = mkUser(r[0], r[1], r[2], r[4], r[5], r[6], r[7], r[8], true);
     u.email = r[3];
     u.employmentType = r[4] === "EXT" ? "contractor" : "full-time";
@@ -58,7 +63,7 @@ function wdTeamUsers() {
 function wdBase() {
   var db = emptyDB();
   db.users = wdTeamUsers();
-  db.teams = WD_TEAMS.map(function (t) {
+  db.teams = WD_TEAMS.filter(function (t) { return byId(db.users, t[2]); }).map(function (t) {
     return { id: t[0], name: t[1], leadUserId: t[2], department: t[3], color: t[4], code: t[5], description: "", contact: "", location: "", clientIds: [] };
   });
   var T0 = "2024-01-01T08:00:00.000Z";
@@ -83,7 +88,7 @@ function wdBase() {
 }
 function seed(withDemo) {
   var db = wdBase();
-  if (withDemo !== false) addDemo(db);
+  if (withDemo !== false && (withDemo === true || typeof PORTAL_DEMO === "undefined" || PORTAL_DEMO)) addDemo(db);
   return db;
 }
 

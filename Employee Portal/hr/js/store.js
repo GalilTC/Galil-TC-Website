@@ -191,14 +191,14 @@ function storeInit() {
   var c = readCache();
   db = c ? c.data : emptyData();
   if (!REMOTE) {
-    if (!db.seededAt) { seedDemo(db); writeCache(); }
+    if (!db.seededAt && PORTAL_DEMO) { seedDemo(db); writeCache(); }
     return Promise.resolve();
   }
   Store.etag = c ? c.etag : null; Store.dirty = !!(c && c.dirty);
   if (STORAGE === "github" && !ghToken()) { setState("token"); return Promise.resolve(); }
   setState("loading");
   var first = backend().open().then(function () { return backend().read(); }).then(function (r) {
-    if (!r) { if (!db.seededAt) seedDemo(db); Store.etag = null; Store.dirty = true; }
+    if (!r) { if (!db.seededAt && PORTAL_DEMO) seedDemo(db); Store.etag = null; Store.dirty = true; }
     else adopt(r);
     writeCache();
     setState("saved");
@@ -207,7 +207,7 @@ function storeInit() {
   }).catch(function (e) {
     if (e.token) { setState("token", e.message); return; }
     setState(e.network ? "offline" : "error", e.message);
-    if (!db.seededAt && !c) seedDemo(db);
+    if (!db.seededAt && !c && PORTAL_DEMO) seedDemo(db);
     setTimeout(poll, 5000);
   });
   startPolling();
