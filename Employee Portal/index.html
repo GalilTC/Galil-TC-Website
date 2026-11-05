@@ -19703,6 +19703,16 @@ var PW_RULE = function (p) {
   return "";
 };
 var failStore = {};   /* §6.4 five consecutive failures locks for 15 minutes */
+/* config.js → signIn "password": personal passwords, kept as salted SHA-256 hashes */
+var PASSWORD_MODE = typeof PORTAL_CONFIG !== "undefined" && PORTAL_CONFIG.signIn === "password";
+function pwHash(salt, pw) { return GalilPortal.sha256(salt + "\u0000" + pw); }
+function pwMatches(u, pw) { return u.passwordHash ? u.passwordHash === pwHash(u.passwordSalt || "", pw) : u.password === pw; }
+function pwSet(t, pw, mustChange) {
+  var salt = ""; for (var i = 0; i < 4; i++) salt += Math.floor(Math.random() * 4294967296).toString(16);
+  try { var a = new Uint32Array(4); crypto.getRandomValues(a); salt = Array.prototype.map.call(a, function (v) { return v.toString(16); }).join(""); } catch (e) {}
+  t.passwordSalt = salt; t.passwordHash = pwHash(salt, pw); delete t.password;
+  t.passwordChangedAt = nowISO(); t.mustChangePassword = !!mustChange;
+}
 
 function AuthLogo(p) {
   return h("div", { className: "authlogo" },
@@ -19729,7 +19739,7 @@ function SignIn(p) {
     var lu = lockedUntil(email);
     if (lu) return set(Object.assign({}, st, { err: "Account locked after five failed attempts. Try again in " + Math.ceil((lu - Date.now()) / 60000) + " minutes." }));
     var u = db.users.filter(function (x) { return x.email.toLowerCase() === email; })[0];
-    if (!u || u.password !== st.pw) {
+    if (!u || !pwMatches(u, st.pw)) {
       var f = failStore[email] || { n: 0, until: 0 };
       f.n++;
       if (f.n >= 5) { f.until = Date.now() + 15 * 60000; f.n = 0; }
@@ -19746,19 +19756,20 @@ function SignIn(p) {
 
       st.mode === "forgot"
         ? h("div", { className: "col", style: { gap: 12 } },
-            h("div", { className: "banner gr" }, "A single-use reset link valid for 30 minutes will be sent to your company address."),
+            PASSWORD_MODE ? h("div", { className: "banner gr" }, "Ask the CEO or the COO for a temporary password. They set it in WorkDesk → Management → People → Reset password; you choose your own at the next sign-in.")
+              : h("div", { className: "banner gr" }, "A single-use reset link valid for 30 minutes will be sent to your company address."),
             h(Inp, { label: "Company email", value: st.email, onChange: function (e) { set(Object.assign({}, st, { email: e.target.value })); }, placeholder: "name" + DOMAIN }),
             h("div", { className: "row" },
-              h(Btn, { kind: "p", onClick: function () { toast("Reset link sent (simulated). It expires in 30 minutes.", "ok"); set(Object.assign({}, st, { mode: "" })); } }, "Send reset link"),
+              PASSWORD_MODE ? null : h(Btn, { kind: "p", onClick: function () { toast("Reset link sent (simulated). It expires in 30 minutes.", "ok"); set(Object.assign({}, st, { mode: "" })); } }, "Send reset link"),
               h(Btn, { kind: "t", onClick: function () { set(Object.assign({}, st, { mode: "" })); } }, "Back")))
 
         : h("div", { className: "col", style: { gap: 11 } },
-            h(Btn, {
+            PASSWORD_MODE ? null : h(Btn, {
               className: "ms", style: { width: "100%", minHeight: 44 },
               onClick: function () { if (WDCloud.entra) WDCloud.login(); else set(Object.assign({}, st, { mode: "ms", err: "" })); }
             }, "⊞  Sign in with Microsoft"),
             WDCloud.signInError ? h("div", { className: "banner err" }, h(Icon, { n: "warn", size: 15 }), WDCloud.signInError) : null,
-            h("div", { className: "cap", style: { textAlign: "center" } }, "Microsoft Authenticator enforces the company MFA policy."),
+            PASSWORD_MODE ? null : h("div", { className: "cap", style: { textAlign: "center" } }, "Microsoft Authenticator enforces the company MFA policy."),
 
             st.mode === "ms"
               ? h("div", { className: "msbox" },
@@ -19778,7 +19789,7 @@ function SignIn(p) {
                   h(Btn, { kind: "t", sm: true, onClick: function () { set(Object.assign({}, st, { mode: "" })); } }, "Cancel"))
               : null,
 
-            h("div", { className: "row", style: { gap: 8 } },
+            PASSWORD_MODE ? null : h("div", { className: "row", style: { gap: 8 } },
               h("div", { className: "grow sep" }), h("span", { className: "cap" }, "or"), h("div", { className: "grow sep" })),
 
             h(Inp, { label: "Company email", id: "si-email", value: st.email, autoComplete: "username", placeholder: "name" + DOMAIN, onChange: function (e) { set(Object.assign({}, st, { email: e.target.value, err: "" })); } }),
@@ -19795,7 +19806,7 @@ function SignIn(p) {
             h("div", { className: "row", style: { justifyContent: "space-between", gap: 8 } },
               h("span", { className: "cap" }, "Language"),
               h(LangSwitch, { light: true })),
-            WDCloud.entra ? null : h("div", { className: "cap", style: { marginTop: 8, background: C.wash, padding: "7px 9px", borderRadius: 9 } },
+            WDCloud.entra || PASSWORD_MODE ? null : h("div", { className: "cap", style: { marginTop: 8, background: C.wash, padding: "7px 9px", borderRadius: 9 } },
               h("b", null, "Demo accounts"), " — password ", h("span", { className: "mono" }, "GalilWorkdesk1"), ". Try ",
               h("span", { className: "mono" }, "danny.gelman" + DOMAIN), " (Project Manager) or ",
               h("span", { className: "mono" }, "eitan.f" + DOMAIN), " (Employee)."),
@@ -19946,6 +19957,46 @@ function SignUp(p) {
 }
 
 /* ---------------- §6.3 holding screen ---------------- */
+/* config.js → signIn "password": choose a password at the first sign-in, when it
+   runs out (passwordDays), after an administrator's reset, or from My profile */
+function ChangePassword(p) {
+  var he = WDI18N.he, u = p.user;
+  var s = useState({ cur: "", pw: "", pw2: "", err: "" }), st = s[0], set = s[1];
+  var first = u.mustChangePassword || !u.passwordChangedAt;
+  var title = p.voluntary ? (he ? "החלפת סיסמה" : "Change your password")
+    : first ? (he ? "בחרו סיסמה אישית" : "Choose your own password")
+    : (he ? "תוקף הסיסמה פג" : "Your password has expired");
+  var note = p.voluntary ? "" : first
+    ? (he ? "לפני שממשיכים, בחרו סיסמה שרק אתם יודעים." : "Before you go on, choose a password only you know.")
+    : (he ? "סיסמאות מוחלפות כל " + GalilPortal.passwordDays() + " ימים. בחרו סיסמה חדשה." : "Passwords are changed every " + GalilPortal.passwordDays() + " days. Choose a new one.");
+  function save() {
+    if (p.voluntary && !pwMatches(u, st.cur)) return set(Object.assign({}, st, { err: he ? "הסיסמה הנוכחית שגויה." : "The current password is wrong." }));
+    var e = PW_RULE(st.pw);
+    if (e) return set(Object.assign({}, st, { err: e }));
+    if (st.pw !== st.pw2) return set(Object.assign({}, st, { err: he ? "שתי הסיסמאות אינן זהות." : "The two passwords do not match." }));
+    if (pwMatches(u, st.pw)) return set(Object.assign({}, st, { err: he ? "בחרו סיסמה שונה מהקודמת." : "Choose a password different from the old one." }));
+    p.onSave(st.pw);
+  }
+  var field = function (k, label, id, ac) {
+    return h(Inp, { label: label, id: id, type: "password", value: st[k], autoComplete: ac,
+      onChange: function (ev) { var o = Object.assign({}, st, { err: "" }); o[k] = ev.target.value; set(o); },
+      onKeyDown: function (ev) { if (ev.key === "Enter") save(); } });
+  };
+  return h("div", { className: "auth" },
+    h("div", { className: "authcard" },
+      h(AuthLogo, { sub: title }),
+      h("div", { className: "col", style: { gap: 11 } },
+        note ? h("div", { className: "banner amber" }, h(Icon, { n: "pending", size: 15 }), note) : null,
+        h("div", { className: "cap" }, u.email),
+        p.voluntary ? field("cur", he ? "סיסמה נוכחית" : "Current password", "cp-cur", "current-password") : null,
+        field("pw", he ? "סיסמה חדשה" : "New password", "cp-new", "new-password"),
+        field("pw2", he ? "הקלידו שוב את הסיסמה החדשה" : "Type the new password again", "cp-new2", "new-password"),
+        h("div", { className: "cap" }, he ? "לפחות 12 תווים, עם אות גדולה, אות קטנה וספרה." : "At least 12 characters, with an upper case letter, a lower case letter and a digit."),
+        st.err ? h("div", { className: "banner err" }, h(Icon, { n: "warn", size: 15 }), st.err) : null,
+        h(Btn, { kind: "p", id: "cp-save", style: { width: "100%", minHeight: 44 }, onClick: save }, he ? "שמירת הסיסמה" : "Save the password"),
+        h(Btn, { kind: "t", style: { width: "100%" }, onClick: p.onCancel || p.onSignOut }, p.onCancel ? (he ? "ביטול" : "Cancel") : (he ? "יציאה" : "Sign out")))));
+}
+
 /* config.js → pilot: people outside the pilot list see this instead of the portal */
 function PilotClosed(p) {
   var he = WDI18N.he;
@@ -23861,7 +23912,14 @@ function PeoplePanel(p) {
           u.pendingActivation ? h(Chip, { k: "amber" }, "pending") : u.isActive ? h(Chip, { k: "gr" }, "active") : h(Chip, { k: "mut" }, "Inactive"),
           isAdmin && !u.pendingActivation && u.id !== user.id ? h(Btn, { sm: true, kind: "t", onClick: function () {
             p.mutate(function (d) { var t = byId(d.users, u.id); if (t) { t.isActive = !t.isActive; audit(d, user.id, (t.isActive ? "Activated " : "Deactivated ") + t.fullName, "users", u.id, null, null); } });
-          } }, u.isActive ? "Deactivate" : "Reactivate") : null)
+          } }, u.isActive ? "Deactivate" : "Reactivate") : null,
+          PASSWORD_MODE && isAdmin && !u.pendingActivation && u.id !== user.id ? h(Btn, { sm: true, kind: "t", "aria-label": "Reset password for " + u.fullName, onClick: function () {
+            var pw = window.prompt("Temporary password for " + u.fullName + " (at least 12 characters, with an upper case letter, a lower case letter and a digit). They choose their own at the next sign-in.");
+            if (pw == null) return;
+            var e = PW_RULE(pw); if (e) { toast(e, "error"); return; }
+            p.mutate(function (d) { var t = byId(d.users, u.id); if (t) { pwSet(t, pw, true); audit(d, user.id, "Password reset for " + t.fullName, "users", u.id, null, null); } });
+            toast("Temporary password set. " + u.fullName + " chooses a new one at the next sign-in.", "ok");
+          } }, "Reset password") : null)
       ];
     },
     fields: [], make: function () { return null; }
@@ -25092,7 +25150,7 @@ function MobileApp(p) {
     tab === "expenses" ? h(MobileExpenses, common) :
     tab === "approvals" ? h(ApprovalsTab, common) :
     tab === "mywork" ? h(MyWork, Object.assign({ mobile: true, screen: true }, common)) :
-    tab === "profile" ? h(Profile, { db: db, user: user, mutate: p.mutate, screen: true, onSignOut: p.onSignOut }) :
+    tab === "profile" ? h(Profile, { db: db, user: user, mutate: p.mutate, screen: true, onSignOut: p.onSignOut, onChangePassword: p.onChangePassword }) :
     moreScreen();
 
   /* More: a screen like the other tabs — grouped rows, each opening a part of the portal */
@@ -25376,6 +25434,10 @@ function Profile(p) {
               onClick: function () { p.setViewPref(o[0]); }
             }, o[1]);
           }))) : null,
+      PASSWORD_MODE && p.onChangePassword ? h("div", { className: "col", style: { gap: 5 } },
+        h("div", { className: "h3" }, "Password"),
+        h("div", { className: "cap" }, (user.passwordChangedAt ? "Changed " + il(user.passwordChangedAt.slice(0, 10)) + ". " : "") + (GalilPortal.passwordDays() ? "Passwords are changed every " + GalilPortal.passwordDays() + " days." : "")),
+        h("div", { className: "row" }, h(Btn, { sm: true, id: "change-password", onClick: p.onChangePassword }, "Change password"))) : null,
       h("div", { className: "col", style: { gap: 5 } },
         h("div", { className: "h3" }, "Sessions"),
         h("div", { className: "cap" }, "Session lifetime is 12 hours of inactivity. Concurrent sessions are permitted and can be revoked."),
@@ -25486,6 +25548,7 @@ function App() {
   }, []);
 
   var user = sessionId ? byId(db.users, sessionId) : null;
+  var pcs = useState(false), pwChange = pcs[0], setPwChange = pcs[1];
 
   function signIn(u, provider) {
     mutate(function (d) {
@@ -25514,6 +25577,7 @@ function App() {
     mutate(function (d) {
       var u = Object.assign(mkUser(id, payload.fullName, payload.fullNameHe, "EMP", payload.jobTitle, payload.department, payload.teamId, payload.managerId, false), payload, { id: id });
       u.isActive = false; u.pendingActivation = true;
+      if (PASSWORD_MODE && payload.password) pwSet(u, payload.password, false);
       u.role = SELF_SELECTABLE.indexOf(payload.requestedRole) >= 0 ? payload.requestedRole : "EMP";
       u.requestedRole = payload.requestedRole;
       d.users.push(u);
@@ -25538,6 +25602,16 @@ function App() {
         : h(SignIn, { db: db, onSignIn: signIn, onSignUp: function () { setAuthMode("signup"); } }),
       h(Toasts, { items: toasts, dismiss: dismiss }), h(AskHost));
   }
+  if (user && GalilPortal.inPilot(user) && (GalilPortal.passwordDue(user) || pwChange)) {
+    var voluntary = !GalilPortal.passwordDue(user);
+    return h(React.Fragment, null,
+      h(ChangePassword, { user: user, voluntary: voluntary, onSignOut: signOut, onCancel: voluntary ? function () { setPwChange(false); } : null,
+        onSave: function (pw) {
+          mutate(function (d) { var t = byId(d.users, user.id); if (t) { pwSet(t, pw, false); audit(d, user.id, "Password changed", "users", user.id, null, null); } });
+          setPwChange(false); toast(WDI18N.he ? "הסיסמה נשמרה." : "Password saved.", "ok");
+        } }),
+      h(Toasts, { items: toasts, dismiss: dismiss }), h(AskHost));
+  }
   if (!GalilPortal.inPilot(user)) {
     return h(React.Fragment, null,
       h(PilotClosed, { user: user, onSignOut: signOut }),
@@ -25559,7 +25633,7 @@ function App() {
         db: db, user: user, theme: theme, setTheme: setTheme, approvals: approvalCount,
         onOpen: openWorkdesk, onProfile: function () { setProfile(true); }, onSignOut: signOut
       }),
-      profile ? h(Profile, { db: db, user: user, mutate: mutate, viewPref: viewPref, setViewPref: setViewPref, onClose: function () { setProfile(false); }, onSignOut: signOut }) : null,
+      profile ? h(Profile, { db: db, user: user, mutate: mutate, viewPref: viewPref, setViewPref: setViewPref, onClose: function () { setProfile(false); }, onSignOut: signOut, onChangePassword: function () { setProfile(false); setPwChange(true); } }) : null,
       h(Toasts, { items: toasts, dismiss: dismiss }), h(AskHost));
   }
 
@@ -25569,7 +25643,7 @@ function App() {
   if (isMobile) {
     return h(React.Fragment, null,
       h(MobileApp, {
-        db: db, user: user, mutate: mutate, theme: theme, setTheme: setTheme, onSignOut: signOut, onHome: goHome,
+        db: db, user: user, mutate: mutate, theme: theme, setTheme: setTheme, onSignOut: signOut, onHome: goHome, onChangePassword: function () { setPwChange(true); },
         onForceDesktop: function () { setViewPref("desktop"); toast("Desktop layout pinned on this device. My profile \u2192 Layout switches back.", ""); }
       }),
       h(Toasts, { items: toasts, dismiss: dismiss }), h(AskHost));
@@ -25656,7 +25730,7 @@ function App() {
     tab === "dashboard" ? h(DashboardTab, common) : null,
 
     admin ? h(AdminModal, Object.assign({ onClose: function () { setAdmin(false); } }, common)) : null,
-    profile ? h(Profile, { db: db, user: user, mutate: mutate, viewPref: viewPref, setViewPref: setViewPref, onClose: function () { setProfile(false); }, onSignOut: signOut }) : null,
+    profile ? h(Profile, { db: db, user: user, mutate: mutate, viewPref: viewPref, setViewPref: setViewPref, onClose: function () { setProfile(false); }, onSignOut: signOut, onChangePassword: function () { setProfile(false); setPwChange(true); } }) : null,
     mywork ? h(MyWork, Object.assign({ onClose: function () { setMyWork(false); } }, common)) : null,
     h(Toasts, { items: toasts, dismiss: dismiss }), h(AskHost));
 }

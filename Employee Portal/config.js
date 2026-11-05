@@ -34,6 +34,13 @@ var PORTAL_CONFIG = {
      tasks or demo HR posts, and the "demo data" buttons are hidden. */
   demoData: false,
 
+  /* Sign-in: "password" = company email and a personal password (no
+     Microsoft button). Everyone starts with the first-time password
+     GalilWorkdesk1 and must choose their own at the first sign-in; after
+     passwordDays the portal asks for a new one. 0 = passwords never expire. */
+  signIn: "password",
+  passwordDays: 90,
+
   storage: "github",
 
   /* the data lives in a PRIVATE repository, apart from the public website */

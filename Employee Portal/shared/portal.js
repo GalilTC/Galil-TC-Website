@@ -59,10 +59,42 @@ var GalilPortal = (function () {
     for (var i = 0; i < list.length; i++) if (String(list[i]).trim().toLowerCase() === e) return true;
     return false;
   }
+  /* SHA-256 (hex) of a string, for passwords: they are kept as salted hashes */
+  function sha256(str) {
+    var b = unescape(encodeURIComponent(str)), n = b.length, i, j;
+    var K = [], H = [], isP = function (x) { for (var f = 2; f * f <= x; f++) if (x % f === 0) return false; return true; };
+    for (var c = 2, k = 0; k < 64; c++) if (isP(c)) { if (k < 8) H[k] = (Math.pow(c, 1 / 2) * 4294967296) | 0; K[k++] = (Math.pow(c, 1 / 3) * 4294967296) | 0; }
+    var w = [], l = ((n + 8) >> 6) + 1, m = [];
+    for (i = 0; i < l * 16; i++) m[i] = 0;
+    for (i = 0; i < n; i++) m[i >> 2] |= b.charCodeAt(i) << (24 - (i % 4) * 8);
+    m[n >> 2] |= 0x80 << (24 - (n % 4) * 8);
+    m[l * 16 - 1] = n * 8;
+    var r = function (x, s) { return (x >>> s) | (x << (32 - s)); };
+    for (i = 0; i < m.length; i += 16) {
+      var a = H.slice(0);
+      for (j = 0; j < 64; j++) {
+        if (j < 16) w[j] = m[i + j];
+        else { var x = w[j - 15], y = w[j - 2]; w[j] = (w[j - 16] + (r(x, 7) ^ r(x, 18) ^ (x >>> 3)) + w[j - 7] + (r(y, 17) ^ r(y, 19) ^ (y >>> 10))) | 0; }
+        var t1 = a[7] + (r(a[4], 6) ^ r(a[4], 11) ^ r(a[4], 25)) + ((a[4] & a[5]) ^ (~a[4] & a[6])) + K[j] + w[j];
+        var t2 = (r(a[0], 2) ^ r(a[0], 13) ^ r(a[0], 22)) + ((a[0] & a[1]) ^ (a[0] & a[2]) ^ (a[1] & a[2]));
+        a = [(t1 + t2) | 0].concat(a.slice(0, 7)); a[4] = (a[4] + t1) | 0;
+      }
+      for (j = 0; j < 8; j++) H[j] = (H[j] + a[j]) | 0;
+    }
+    return H.map(function (v) { return ("00000000" + (v >>> 0).toString(16)).slice(-8); }).join("");
+  }
+  /* config.js → signIn "password" and passwordDays: has this person's password run out? */
+  function passwordDays() { return typeof PORTAL_CONFIG !== "undefined" && PORTAL_CONFIG.signIn === "password" ? (PORTAL_CONFIG.passwordDays || 0) : 0; }
+  function passwordDue(u) {
+    if (!u || typeof PORTAL_CONFIG === "undefined" || PORTAL_CONFIG.signIn !== "password") return false;
+    if (u.mustChangePassword || !u.passwordChangedAt) return true;
+    var days = passwordDays();
+    return !!days && Date.now() - new Date(u.passwordChangedAt).getTime() > days * 86400000;
+  }
   function sessionUser() {
     var id = get(SESSION_KEY), d = workdesk();
     if (!id || !d) return null;
-    for (var i = 0; i < d.users.length; i++) if (d.users[i].id === id) return inPilot(d.users[i]) ? d.users[i] : null;
+    for (var i = 0; i < d.users.length; i++) if (d.users[i].id === id) return inPilot(d.users[i]) && !passwordDue(d.users[i]) ? d.users[i] : null;
     return null;
   }
   var TASKANA_ROLES = ["Admin", "Manager", "Member", "External", "Viewer"];
@@ -161,7 +193,7 @@ var GalilPortal = (function () {
     TASKANA_ROLES: TASKANA_ROLES, HR_ROLES: HR_ROLES,
     lang: lang, setLang: setLang, applyLang: applyLang, t: t,
     theme: theme, setTheme: setTheme,
-    workdesk: workdesk, sessionUser: sessionUser, inPilot: inPilot, access: access, defaultAccess: defaultAccess, taskana: taskana,
+    workdesk: workdesk, sessionUser: sessionUser, inPilot: inPilot, sha256: sha256, passwordDue: passwordDue, passwordDays: passwordDays, access: access, defaultAccess: defaultAccess, taskana: taskana,
     isMobileDevice: isMobileDevice,
     hubUrl: hubUrl, signOut: signOut, gate: gate
   };
